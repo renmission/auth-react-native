@@ -1,29 +1,51 @@
 import React from 'react';
-import {View, TextInput, StyleSheet} from 'react-native';
+import {Controller, FieldValues} from 'react-hook-form';
+import {View, TextInput, StyleSheet, Text} from 'react-native';
 
 type IProps = {
-  value: string;
-  setValue: (value: string) => void;
+  name: string;
+  control: any;
   placeholder: string;
   secureTextEntry?: boolean;
+  rules?: Partial<Record<keyof FieldValues, any>>;
 };
 
 const CustomInput: React.FC<IProps> = ({
-  value,
-  setValue,
+  control,
+  name,
   placeholder,
   secureTextEntry,
+  rules,
 }) => {
   return (
-    <View style={styles.constainer}>
-      <TextInput
-        value={value}
-        onChangeText={setValue}
-        placeholder={placeholder}
-        secureTextEntry={secureTextEntry}
-        style={styles.input}
-      />
-    </View>
+    <Controller
+      control={control}
+      name={name}
+      rules={rules}
+      render={({field: {value, onChange, onBlur}, fieldState: {error}}) => (
+        <>
+          <View
+            style={[
+              styles.constainer,
+              {borderColor: error ? 'red' : '#e8e8e8'},
+            ]}>
+            <TextInput
+              placeholder={placeholder}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              value={value}
+              style={styles.input}
+              secureTextEntry={secureTextEntry}
+            />
+          </View>
+          {error && (
+            <Text style={{color: 'red', alignSelf: 'stretch'}}>
+              {error.message || 'Error'}
+            </Text>
+          )}
+        </>
+      )}
+    />
   );
 };
 

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {
   View,
   Image,
@@ -12,15 +12,23 @@ import CustomButton from '../../components/CustomButton/CustomButton';
 import SocialSignInButton from '../../components/SocialSignInButton/SocialSignInButton';
 import {useNavigation} from '@react-navigation/native';
 import {INavigationProps} from '../../../types.d';
+import {useForm} from 'react-hook-form';
 
 const Signin = () => {
-  const [username, setUsername] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
   const {height} = useWindowDimensions();
+
+  const {
+    control,
+    handleSubmit,
+    formState: {errors},
+  } = useForm();
+
+  console.log(errors);
 
   const navigation = useNavigation<INavigationProps>();
 
-  const onSignInPressed = () => {
+  const onSignInPressed = (data: any) => {
+    console.log(data);
     navigation.navigate('Home');
   };
 
@@ -41,19 +49,33 @@ const Signin = () => {
           resizeMode="contain"
         />
         <CustomInput
+          name="username"
           placeholder={'Username'}
-          value={username}
-          setValue={setUsername}
+          control={control}
+          rules={{
+            required: 'Username is required *',
+            minLength: {value: 3, message: 'Atleast 3 characters long'},
+          }}
         />
+
         <CustomInput
+          name="password"
           placeholder={'Password'}
-          value={password}
-          setValue={setPassword}
+          control={control}
           secureTextEntry
+          rules={{
+            required: 'Password is required *',
+            minLength: {value: 3, message: 'Atleast 6 characters.'},
+            pattern: {
+              value: /^(?=.*[0-9]).+$/i,
+              message: 'Must contain a number.',
+            },
+          }}
         />
+
         <CustomButton
           text={'Sign In'}
-          onPress={onSignInPressed}
+          onPress={handleSubmit(onSignInPressed)}
           type={'PRIMARY'}
         />
         <CustomButton

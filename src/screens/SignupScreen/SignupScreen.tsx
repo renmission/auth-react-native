@@ -1,16 +1,23 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {View, StyleSheet, ScrollView, Text} from 'react-native';
 import CustomInput from '../../components/CustomInput/CustomInput';
 import CustomButton from '../../components/CustomButton/CustomButton';
 import SocialSignInButton from '../../components/SocialSignInButton/SocialSignInButton';
 import {useNavigation} from '@react-navigation/native';
 import {INavigationProps} from '../../../types.d';
+import {useForm} from 'react-hook-form';
 
 const Signup = () => {
-  const [username, setUsername] = useState<string>('');
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [repeatPassword, setRepeatPassword] = useState<string>('');
+  const {
+    control,
+    handleSubmit,
+    watch,
+    formState: {errors},
+  } = useForm();
+
+  const pwd = watch('password');
+
+  console.log(errors);
 
   const navigation = useNavigation<INavigationProps>();
 
@@ -18,7 +25,9 @@ const Signup = () => {
     navigation.navigate('SignIn');
   };
 
-  const onRegisterPressed = () => {
+  const onRegisterPressed = (data: any) => {
+    console.log(data);
+
     navigation.navigate('ConfirmEmail');
   };
 
@@ -37,26 +46,51 @@ const Signup = () => {
           <Text style={styles.title}>Create an account</Text>
         </View>
         <CustomInput
+          name="username"
           placeholder={'Username'}
-          value={username}
-          setValue={setUsername}
+          control={control}
+          rules={{
+            required: 'Username is required *',
+            minLength: {value: 3, message: 'Atleast 3 characters long'},
+          }}
         />
-        <CustomInput placeholder={'Email'} value={email} setValue={setEmail} />
         <CustomInput
+          name="email"
+          placeholder={'Email'}
+          control={control}
+          rules={{
+            required: 'Email is required *',
+            pattern: {
+              value: /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
+              message: 'Invalid email address',
+            },
+          }}
+        />
+        <CustomInput
+          name="password"
           placeholder={'Password'}
-          value={password}
-          setValue={setPassword}
+          control={control}
           secureTextEntry
+          rules={{
+            required: 'Password is required *',
+            minLength: {value: 6, message: 'Atleast 6 characters.'},
+          }}
         />
         <CustomInput
-          placeholder={'Repeat Password'}
-          value={repeatPassword}
-          setValue={setRepeatPassword}
+          name="password-repeat"
+          placeholder={'Cofirm Password'}
+          control={control}
           secureTextEntry
+          rules={{
+            required: 'Confirm Password is required *',
+            minLength: {value: 6, message: 'Atleast 6 characters.'},
+            validate: (value: string) =>
+              value === pwd || 'Password do not match',
+          }}
         />
         <CustomButton
           text={'Register'}
-          onPress={onRegisterPressed}
+          onPress={handleSubmit(onRegisterPressed)}
           type={'PRIMARY'}
         />
         <View style={styles.text}>
